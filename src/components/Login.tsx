@@ -1,4 +1,9 @@
+import { useState } from 'react';
 import styled from "styled-components";
+import { AxiosError } from 'axios';
+
+import { useAppContext } from '../hooks/useAppContext';
+import { useRequest } from '../hooks/useRequest';
 
 const LoginForm = styled.div`
     display: flex;
@@ -12,16 +17,36 @@ const ConfirmButton = styled.button`
     height: 7%;
 `
 
-const submitForm = () => {
-    const login = document.getElementById("inputEmail")
-    const pass = document.getElementById("inputPassword")
-    console.log(login)
-    console.log(pass)
-}
-
 export default function Login() {
+    const request = useRequest();
+    const appContext = useAppContext();
+    const [message, setMessage] = useState<string>();
+    
+    const submitForm = async () => {
+        const loginValue = document.getElementById("inputEmail") as HTMLInputElement;
+        const passwordValue = document.getElementById("inputPassword") as HTMLInputElement;
+
+        try {
+            const response = await request.post('/users/auth', {
+                login: loginValue.value,
+                password: passwordValue.value,
+            });
+
+            if (response.data) {
+                appContext.setAccessToken(response.data.accessToken);
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                if (error.response?.data.message) {
+                  setMessage(error.response.data.message);
+                }
+              }
+        }
+    }
+    
     return (
         <LoginForm>
+            <span style={{ color: 'red' }}>{message}</span>
             <div className="mb-3 row">
                 <label htmlFor="inputemail" className="col-sm-2 col-form-label">Email</label>
                     <div className="col-sm-10">
