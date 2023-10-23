@@ -1,31 +1,29 @@
-import { createBrowserRouter } from "react-router-dom";
-import Classification from "./Classification";
+import {  Routes, Route, Navigate } from "react-router-dom";
+
 import Play from "./Play";
 import MainMenu from "./MainMenu";
 import Gameboard from "./Gameboard";
 import Login from "./Login";
+import { useAppContext } from "../hooks/useAppContext";
 
-const Router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Login />,
-  },
-  {
-    path: "/menu",
-    element: <MainMenu />,
-  },
-  {
-    path: "/classification",
-    element: <Classification />,
-  },
-  {
-    path: "/play",
-    element: <Play />,
-  },
-  {
-    path: "/gameboard",
-    element: <Gameboard />,
-  },
-]);
-
-export default Router;
+export default function AppRouter() {
+  const { accessToken } = useAppContext();
+  
+  if (!accessToken) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+  
+  return (
+    <Routes>
+      <Route path="/" element={<MainMenu />} />
+      <Route path="/play" element={<Play />} />
+      <Route path="/game" element={<Gameboard />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
+}
