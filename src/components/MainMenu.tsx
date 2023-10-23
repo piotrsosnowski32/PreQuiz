@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import styled from "styled-components";
 import "../mainMenu.css";
+import { useState } from 'react';
 
 const classification = [
     {id: "1", name: "Jula", position: 1, games:{ win:2, draw:1, lose:0 }, points: 7, subPoints:130},
@@ -15,16 +16,32 @@ const todayGames = [
     {id: "1", players: [ {id:"1", name:"Jula", isFinished:true}, {id:"2", name:"Paweł", isFinished:true} ]},
     {id: "2", players: [ {id:"3", name:"Dawid", isFinished:true}, {id:"6", name:"Ola", isFinished:true} ]},
     {id: "3", players: [ {id:"5", name:"Grzegorz", isFinished:true}, {id:"4", name:"Gabi", isFinished:true} ]}
-]
+];
 
 const Content = styled.div`
     display: flex;
 `;
 
+const TodayTable = styled.table`
+    width : 100%;
+`
+
+const TodayTablePlayers = styled.td`
+    width : 45%;
+`
+
+const PlayButton = styled.button`
+    
+    width : 50%;
+    height : 50%
+`
 
 
 export default function MainMenu() {
     const navigate = useNavigate();
+    const current = new Date();
+    const date = `${current.getDate()}/${current.getMonth()+1}/${current.getFullYear()}`;
+  
 
     return (
         <div className='Container'>
@@ -60,29 +77,29 @@ export default function MainMenu() {
                             }
                         </tbody>
                     </table>
-                    <table className="table">
+                    <TodayTable>
                         <thead>
                             <tr>
-                            <th scope="col" colSpan={3}>DATA</th>
+                            <th scope="col" colSpan={3}>{date}</th>
                             </tr>
                         </thead>
                         <tbody className="table-group-divider">
                             {
                                 todayGames.map(({id, players}) => (
                                     <tr>
-                                        <td>{players[0].name}</td>
+                                        <TodayTablePlayers>{players[0].name}</TodayTablePlayers>
                                         <td>vs</td>
-                                        <td>{players[1].name}</td>
+                                        <TodayTablePlayers>{players[1].name}</TodayTablePlayers>
                                     </tr>
                                     )
                                 )
                             }
                         </tbody>
-                    </table>
+                    </TodayTable>
                 </div>
-                    <button type="button" className="button-play btn btn-warning" onClick={() =>navigate("/play")}>
+                    <PlayButton type="button" className="button-play btn btn-warning" onClick={() =>navigate("/play")}>
                         Zagraj
-                    </button>
+                    </PlayButton>
             </Content>
         </div>
     )
