@@ -8,7 +8,7 @@ import { useAppContext } from "../hooks/useAppContext";
 
 export default function AppRouter() {
   const { accessToken } = useAppContext();
-  
+
   if (!accessToken) {
     return (
       <Routes>
