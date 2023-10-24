@@ -22,7 +22,7 @@ function App() {
   
   return (
     <BrowserRouter>
-      <div className="p-3 mb-2 bg-dark text-white">
+      <div className="p-3 bg-dark text-white">
         <AppContext.Provider value={appContextValue}>
           <AppRouter />
         </AppContext.Provider>

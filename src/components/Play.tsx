@@ -1,33 +1,29 @@
 import styled from "styled-components";
 import MainMenu from "./MainMenu";
 import { useNavigate, useParams } from "react-router-dom";
-
-const categories = [
-  { CatID: 1, CatName: "Biologia", path: "/biology" },
-  { CatID: 2, CatName: "Chemia", path: "/chemistry" },
-  { CatID: 3, CatName: "Geografia", path: "/geography" },
-];
-
-const questions = [];
+import { devices } from "./constants";
 
 const MainFrame = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
-`;
-
-const CategoryFrame = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  height: 100%;
+  width: 50%;
+  align-items: center;
   justify-content: center;
 `;
 
-const CategoryButton = styled.button`
-  margin: 5px;
-  width: 250px;
-  height: 30%;
-  padding: 0px;
+const Paragraph = styled.p`
+    text-align: justify;
+    
+`
+
+const PlayButton = styled.button`
+	width: 100%;
+  height: 60px;
+  margin-top: 50px;
+  @media only screen and ${devices.md} {
+    width: 20%;
+    height: 50px;
+  }
 `;
 
 function CategoryChoice() {
@@ -35,21 +31,20 @@ function CategoryChoice() {
 
   return (
     <MainFrame>
-      <h1>Wybierz kategorię</h1>
-      <CategoryFrame>
-        {categories.map(({ CatID, CatName }) => (
-          <CategoryButton
-            type="button"
-            className="btn btn-warning"
-            key={CatID}
-            onClick={() => {
-              navigate("/gameboard", { state: { CatID } });
-            }}
-          >
-            {CatName}
-          </CategoryButton>
-        ))}
-      </CategoryFrame>
+        <Paragraph>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
+          sed do eiusmod tempor incididunt ut labore et dolore magna 
+          aliqua. Ut enim ad minim veniam, quis nostrud exercitation 
+          ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+          Duis aute irure dolor in reprehenderit in voluptate velit 
+          esse cillum dolore eu fugiat nulla pariatur. Excepteur sint 
+          occaecat cupidatat non proident, sunt in culpa qui officia 
+          deserunt mollit anim id est laborum."
+        </Paragraph>
+
+        <PlayButton className='button-play btn btn-warning'>
+            ZAGRAJ
+        </PlayButton>
     </MainFrame>
   );
 }
