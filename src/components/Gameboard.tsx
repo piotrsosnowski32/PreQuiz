@@ -1,66 +1,56 @@
-import styled from "styled-components";
-import { useState, useEffect } from "react";
-import Timer from "./TImer";
-import { act } from "react-dom/test-utils";
-import { Prev } from "react-bootstrap/esm/PageItem";
+import { useState, useEffect } from 'react';
+import styled from 'styled-components';
 
-const game = [
-    {
-      id: "1", 
-      question:"Które miasto to stolica Polski?", 
-      answers:[ 
-        {value: "a", label:"Kraków"}, 
-        {value: "b", label:"Warszawa"}, 
-        {value: "c", label:"Rzeszów"},
-        {value: "d", label:"Wrocław"} ]
-    },
-    {
-      id: "2", 
-      question:"Gdzie raki zimują?", 
-      answers:[ 
-        {value: "a", label:"Tutaj"}, 
-        {value: "b", label:"Tam"}, 
-        {value: "c", label:"Nigdzie"},
-        {value: "d", label:"Wrocław"} ]
-    }
-]
+import Timer from './TImer';
+import { useRequest } from '../hooks/useRequest';
+
+export interface AnswerInterface {
+	value: string;
+	label: string;
+}
+
+export interface GameInterface {
+	id: string;
+	question: string;
+	answers: AnswerInterface[];
+}
 
 const Container = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-wrap: break-word;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	overflow-wrap: break-word;
 `;
 
 const Header = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
 `;
 
 const QuestionDiv = styled.div`
-  width: 95%;
+	width: 95%;
 `;
 
 const TimerDiv = styled.div`
-  display: flex;
-  justi: right;
-  width: 5%;
+	display: flex;
+	justi: right;
+	width: 5%;
 `;
 
 const AnswersDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
 `;
 
 const AnswerListElement = styled.li`
-  background-color: #ffc107;
-  border: none;
-  margin-top: 15px;
-  height: 60px;
+	background-color: #ffc107;
+	border: none;
+	margin-top: 15px;
+	height: 60px;
 `;
 /*
 const ContinueButton = styled.button`
@@ -69,69 +59,116 @@ const ContinueButton = styled.button`
   margin-top: 25px;
 `;*/
 
-const scoreBoard: { QuestID: string, AnsID: string }[] = [];
+// TYLKO NA POTRZEBĘ TESTOWANIA
+const playerId = '652ebc23b6ad104b4c442d76';
 
 function Gameboard() {
+	const [game, setGame] = useState<GameInterface[] | undefined | null>();
+	const [activeQuestion, setActiveQuestion] = useState(0);
+	const [isFinished, setFinished] = useState(false);
+	const [scoreboard, setScoreboard] = useState<{ questionId: string; value: string }[]>([]);
 
-const addPoints = () => {
-  scoreBoard.push({
-    QuestID: game[activeQuestion].id,
-    AnsID: "",
-  });
-}
+	const request = useRequest();
 
-const [activeQuestion, setActiveQuestion] = useState(0)
-const [isFinished, setFinished] = useState(false)
+	useEffect(function onMountFetchGameData() {
+		const fetchData = async () => {
+			try {
+				const result = await request.get(`/games/${playerId}`);
 
-const nextQuestion = () => {
-  if (activeQuestion < game.length - 1) {
-    setActiveQuestion((prev) => prev + 1);
-  } else {
-    setFinished(true)
-    console.log("podsumowanie");
-    console.log(scoreBoard);
-  }
-}
+				if (result.data?.questions) {
+					setGame(result.data.questions);
+				} else {
+					setGame(null);
+				}
+			} catch {
+				setGame(null);
+			}
+		};
 
- return (
-    <Container>
-      <Header>
-        <QuestionDiv>
-          <h1>{game[activeQuestion].question}</h1>
-        </QuestionDiv>
+		fetchData();
+	}, []);
 
-        <TimerDiv>
-            <div className="timer">
-              {!isFinished?(
-                <Timer key={activeQuestion} onFinish={() => {
-                              addPoints();
-                              nextQuestion();
-              }} initTime={5} />
-              ):null}
-              
-            </div>
-        </TimerDiv>
-      </Header>
+	useEffect(
+		function onFinish() {
+			if (isFinished) {
+				const saveData = async () => {
+					// TODO: to powinno być wysyłane po każdym pytaniu żeby nie utracić odpowiedzi użytkownika
+					await request.post(`/games/${playerId}`, {
+						answers: scoreboard,
+					});
+				};
 
-      <AnswersDiv>
-        <ul className="list-group">
-          {game[activeQuestion].answers.map(({ label, value }) => (
-            <AnswerListElement
-              key={label}
-              value={value}
-              className="list-group-item list-group-item-action"
-              onClick={() => {
-                    addPoints();
-                    nextQuestion()
-              }} 
-            >
-              {label}
-            </AnswerListElement>
-          ))}
-        </ul>
-      </AnswersDiv>
-    </Container>
-  );
+				saveData();
+			}
+		},
+		[isFinished]
+	);
+
+	if (game === null) {
+		return <span style={{ color: 'red' }}>Nie udało się pobrać pytań dla gry.</span>;
+	}
+
+	if (!game?.length) {
+		return <span>Trwa pobieranie pytań dla rozgrywki...</span>;
+	}
+
+	const addPoints = (answer?: string) => {
+		setScoreboard((prev) => [
+			...prev,
+			{ questionId: game[activeQuestion].id, value: answer ?? '' },
+		]);
+	};
+
+	const nextQuestion = async () => {
+		if (activeQuestion < game.length - 1) {
+			setActiveQuestion((prev) => prev + 1);
+		} else {
+			setFinished(true);
+		}
+	};
+
+	return (
+		<Container>
+			<Header>
+				<QuestionDiv>
+					<h1>{game[activeQuestion].question}</h1>
+				</QuestionDiv>
+
+				<TimerDiv>
+					<div className='timer'>
+						{!isFinished ? (
+							<Timer
+								key={activeQuestion}
+								onFinish={() => {
+									addPoints();
+									nextQuestion();
+								}}
+								initTime={5}
+							/>
+						) : null}
+					</div>
+				</TimerDiv>
+			</Header>
+
+			<AnswersDiv>
+				<ul className='list-group'>
+					{game[activeQuestion].answers.map(({ label, value }) => (
+						<AnswerListElement
+							key={label}
+							value={value}
+							className='list-group-item list-group-item-action'
+							onClick={() => {
+								addPoints(value);
+								nextQuestion();
+							}}
+						>
+							{label}
+						</AnswerListElement>
+					))}
+				</ul>
+			</AnswersDiv>
+		</Container>
+	);
 }
 
 export default Gameboard;
