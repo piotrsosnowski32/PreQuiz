@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-
+import { useNavigate } from 'react-router-dom';
 import Timer from './TImer';
 import { useRequest } from '../hooks/useRequest';
 
@@ -69,6 +69,7 @@ function Gameboard() {
 	const [scoreboard, setScoreboard] = useState<{ questionId: string; value: string }[]>([]);
 
 	const request = useRequest();
+	const navigate = useNavigate();
 
 	useEffect(function onMountFetchGameData() {
 		const fetchData = async () => {
@@ -99,6 +100,7 @@ function Gameboard() {
 				};
 
 				saveData();
+				navigate('/over')
 			}
 		},
 		[isFinished]

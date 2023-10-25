@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { AxiosError } from 'axios';
-
+import { devices } from './constants';
 import '../mainMenu.css';
 import { useRequest } from '../hooks/useRequest';
 
@@ -48,6 +48,12 @@ const PlayButton = styled.button`
 	width: 50%;
 	height: 50%;
 `;
+
+const TablesDiv = styled.div`
+	@media only screen and ${devices.md} {
+		display: flex;
+	}
+`
 
 export default function MainMenu() {
 	const [todayGames, setTodayGames] = useState<TodayGamesInterface[] | undefined>();
@@ -105,7 +111,7 @@ export default function MainMenu() {
 		<div className='Container'>
 			<h1>Siemaneczko!</h1>
 			<Content className='inner-container'>
-				<div className='tables'>
+				<TablesDiv className='tables'>
 					{classification && classification.length > 0 ? (
 						<table className='table table-striped table-hover main-table'>
 							<thead className='table-dark'>
@@ -164,7 +170,8 @@ export default function MainMenu() {
 					) : (
 						<div style={{ color: 'red' }}>{todayGameMessage}</div>
 					)}
-				</div>
+				</TablesDiv>
+
 				<PlayButton
 					type='button'
 					className='button-play btn btn-warning'
