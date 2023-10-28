@@ -6,6 +6,7 @@ import Gameboard from "./Gameboard";
 import Login from "./Login";
 import Finish from "./Finish";
 import { useAppContext } from "../hooks/useAppContext";
+import EndingView from "./EndingView";
 
 export default function AppRouter() {
   const { accessToken } = useAppContext();
@@ -13,8 +14,11 @@ export default function AppRouter() {
   if (!accessToken) {
     return (
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/endingView" element={<EndingView />} />
+        <Route path="*" element={<Navigate to="/endingView" replace />} />
+
+        {/* <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" replace />} /> */}
       </Routes>
     );
   }
