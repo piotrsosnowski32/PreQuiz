@@ -22,11 +22,16 @@
 }
 
 .table-headers th {
-    width: 10%;
+    font-size:10px;
+    text-align: center;
 }
 
 .table-headers .position {
     width: 1%;
+}
+
+.main-table {
+    width: 100%;
 }
 
 
