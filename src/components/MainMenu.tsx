@@ -10,6 +10,7 @@ export interface PlayersInterface {
 	id: string;
 	name: string;
 	isFinished: boolean;
+	subPoints: number;
 }
 
 export interface TodayGamesInterface {
@@ -38,10 +39,12 @@ const Content = styled.div`
 
 const TodayTable = styled.table`
 	width: 100%;
+	max-width: 500px;
+	min-height: 150px;
 `;
 
 const TodayTablePlayers = styled.td`
-	width: 45%;
+	text-align: center;
 `;
 
 const PlayButton = styled.button`
@@ -52,8 +55,9 @@ const PlayButton = styled.button`
 const TablesDiv = styled.div`
 	@media only screen and ${devices.md} {
 		display: flex;
+		gap: 64px;
 	}
-`
+`;
 
 export default function MainMenu() {
 	const [todayGames, setTodayGames] = useState<TodayGamesInterface[] | undefined>();
@@ -113,7 +117,10 @@ export default function MainMenu() {
 			<Content className='inner-container'>
 				<TablesDiv className='tables'>
 					{classification && classification.length > 0 ? (
-						<table className='table table-striped table-hover main-table'>
+						<table
+							className='table table-striped table-hover main-table'
+							style={{ display: 'block', overflowX: 'auto' }}
+						>
 							<thead className='table-dark'>
 								<tr className='table-headers'>
 									<th className='position' scope='col'>
@@ -160,9 +167,19 @@ export default function MainMenu() {
 							<tbody className='table-group-divider'>
 								{todayGames.map(({ players }) => (
 									<tr>
-										<TodayTablePlayers>{players[0].name}</TodayTablePlayers>
-										<td>vs</td>
-										<TodayTablePlayers>{players[1].name}</TodayTablePlayers>
+										<TodayTablePlayers>
+											{players[0].name}{' '}
+											{players[0].subPoints != undefined ? (
+												<> &bull; {players[0].subPoints}</>
+											) : null}
+										</TodayTablePlayers>
+										<td> vs </td>
+										<TodayTablePlayers>
+											{players[1].subPoints != undefined ? (
+												<>{players[1].subPoints} &bull; </>
+											) : null}
+											{players[1].name}{' '}
+										</TodayTablePlayers>
 									</tr>
 								))}
 							</tbody>

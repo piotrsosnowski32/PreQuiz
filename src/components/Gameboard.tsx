@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
+
 import Timer from './TImer';
 import { useRequest } from '../hooks/useRequest';
 
@@ -52,21 +54,11 @@ const AnswerListElement = styled.li`
 	margin-top: 15px;
 	height: 60px;
 `;
-/*
-const ContinueButton = styled.button`
-  width: 150px;
-  height: 50px;
-  margin-top: 25px;
-`;*/
-
-// TYLKO NA POTRZEBĘ TESTOWANIA
-const playerId = '652ebc23b6ad104b4c442d76';
 
 function Gameboard() {
-	const [game, setGame] = useState<GameInterface[] | undefined | null>();
+	const [game, setGame] = useState<{ data?: GameInterface[]; errorMessage?: string }>();
 	const [activeQuestion, setActiveQuestion] = useState(0);
 	const [isFinished, setFinished] = useState(false);
-	const [scoreboard, setScoreboard] = useState<{ questionId: string; value: string }[]>([]);
 
 	const request = useRequest();
 	const navigate = useNavigate();
@@ -74,15 +66,21 @@ function Gameboard() {
 	useEffect(function onMountFetchGameData() {
 		const fetchData = async () => {
 			try {
-				const result = await request.get(`/games/${playerId}`);
+				const result = await request.get(`/games/current`);
 
 				if (result.data?.questions) {
-					setGame(result.data.questions);
+					setGame({ data: result.data.questions });
 				} else {
-					setGame(null);
+					setGame({ errorMessage: 'Nie udało się pobrać pytań dla gry.' });
 				}
-			} catch {
-				setGame(null);
+			} catch (error) {
+				if (error instanceof AxiosError) {
+					if (error.response?.data.message) {
+						setGame({ errorMessage: error.response?.data.message });
+					}
+				} else {
+					setGame({ errorMessage: 'Nie udało się pobrać pytań dla gry.' });
+				}
 			}
 		};
 
@@ -92,37 +90,36 @@ function Gameboard() {
 	useEffect(
 		function onFinish() {
 			if (isFinished) {
-				const saveData = async () => {
-					// TODO: to powinno być wysyłane po każdym pytaniu żeby nie utracić odpowiedzi użytkownika
-					await request.post(`/games/${playerId}`, {
-						answers: scoreboard,
-					});
-				};
-
-				saveData();
-				navigate('/over')
+				navigate('/over');
 			}
 		},
 		[isFinished]
 	);
 
-	if (game === null) {
-		return <span style={{ color: 'red' }}>Nie udało się pobrać pytań dla gry.</span>;
+	const gameError = game?.errorMessage;
+	const gameData = game?.data;
+
+	if (gameError) {
+		return <span style={{ color: 'red' }}>{game.errorMessage}</span>;
 	}
 
-	if (!game?.length) {
+	if (!gameData?.length) {
 		return <span>Trwa pobieranie pytań dla rozgrywki...</span>;
 	}
 
-	const addPoints = (answer?: string) => {
-		setScoreboard((prev) => [
-			...prev,
-			{ questionId: game[activeQuestion].id, value: answer ?? '' },
-		]);
+	const gameQuestion = gameData[activeQuestion];
+
+	const addPoints = async (answer?: string) => {
+		await request.post('/games/current', {
+			answer: {
+				questionId: gameQuestion.id,
+				value: answer ?? '',
+			},
+		});
 	};
 
 	const nextQuestion = async () => {
-		if (activeQuestion < game.length - 1) {
+		if (activeQuestion < gameData.length - 1) {
 			setActiveQuestion((prev) => prev + 1);
 		} else {
 			setFinished(true);
@@ -133,7 +130,7 @@ function Gameboard() {
 		<Container>
 			<Header>
 				<QuestionDiv>
-					<h1>{game[activeQuestion].question}</h1>
+					<h1>{gameQuestion.question}</h1>
 				</QuestionDiv>
 
 				<TimerDiv>
@@ -141,11 +138,11 @@ function Gameboard() {
 						{!isFinished ? (
 							<Timer
 								key={activeQuestion}
-								onFinish={() => {
-									addPoints();
+								onFinish={async () => {
+									await addPoints();
 									nextQuestion();
 								}}
-								initTime={5}
+								initTime={10}
 							/>
 						) : null}
 					</div>
@@ -154,13 +151,13 @@ function Gameboard() {
 
 			<AnswersDiv>
 				<ul className='list-group'>
-					{game[activeQuestion].answers.map(({ label, value }) => (
+					{gameQuestion.answers.map(({ label, value }) => (
 						<AnswerListElement
 							key={label}
 							value={value}
 							className='list-group-item list-group-item-action'
-							onClick={() => {
-								addPoints(value);
+							onClick={async () => {
+								await addPoints(value);
 								nextQuestion();
 							}}
 						>
