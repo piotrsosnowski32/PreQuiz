@@ -14,11 +14,11 @@ export default function AppRouter() {
   if (!accessToken) {
     return (
       <Routes>
-        <Route path="/endingView" element={<EndingView />} />
-        <Route path="*" element={<Navigate to="/endingView" replace />} />
+        {/* <Route path="/endingView" element={<EndingView />} />
+        <Route path="*" element={<Navigate to="/endingView" replace />} /> */}
 
-        {/* <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/login" replace />} /> */}
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }
