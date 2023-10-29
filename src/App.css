@@ -1,5 +1,5 @@
 body > #root > div {
-    height: 100vh;
+    min-height: 100vh;
   }
 
 h1 {
@@ -10,7 +10,6 @@ h1 {
 .p-3 {
     display: flex;
     justify-content: center;
-    height: 101vh;
     padding: 0;
     margin-bottom: 0.0rem !important; 
 }

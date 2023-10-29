@@ -5,6 +5,7 @@ import { AxiosError } from "axios";
 import { devices } from "./constants";
 import "../mainMenu.css";
 import { useRequest } from "../hooks/useRequest";
+import Placeholder from 'react-bootstrap/Placeholder';
 
 export interface PlayersInterface {
   id: string;
@@ -51,14 +52,28 @@ const TodayTablePlayers = styled.td`
 `;
 
 const PlayButton = styled.button`
-  width: 150px;
   height: 50px;
+  width: 90%;
+  position: fixed;
+  bottom: 16px;
 `;
 
 const TablesDiv = styled.div`
+  margin-bottom: 70px;
+
   @media only screen and ${devices.md} {
     display: flex;
     gap: 64px;
+  }
+`;
+
+const ClassificationTable = styled.table`
+  width: 100%;
+  
+  @media only screen and ${devices.md} {
+    display: block;
+    overflow-x: auto;
+    width: 50%;
   }
 `;
 
@@ -104,13 +119,11 @@ const TodayGamesHead = styled.thead`
 
 export default function MainMenu() {
   const [todayGames, setTodayGames] = useState<
-    TodayGamesInterface[] | undefined
+    { data?: TodayGamesInterface[]; errorMessage?: string; isLoading?: boolean; }
   >();
   const [classification, setClassification] = useState<
-    ClassificationInterface[] | undefined
+    { data?: ClassificationInterface[]; errorMessage?: string; isLoading?: boolean }
   >();
-  const [todayGameMessage, setTodayGameMessage] = useState<string>();
-  const [classificationMessage, setClassificationMessage] = useState<string>();
 
   const request = useRequest();
   const navigate = useNavigate();
@@ -119,17 +132,19 @@ export default function MainMenu() {
   const date = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
 
   useEffect(function onMountFetchTodayGames() {
+    setTodayGames(prevState => ({ ...prevState, isLoading: true }));
+    
     const fetchData = async () => {
       try {
         const result = await request.get("/games/today");
 
         if (result.data) {
-          setTodayGames(result.data);
+          setTodayGames({ data: result.data, isLoading: false });
         }
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.data.message) {
-            setTodayGameMessage(error.response.data.message);
+            setTodayGames({ errorMessage: error.response.data.message, isLoading: false });
           }
         }
       }
@@ -139,17 +154,19 @@ export default function MainMenu() {
   }, []);
 
   useEffect(function onMountFetchClassification() {
+    setClassification(prevState => ({ ...prevState, isLoading: true }));
+    
     const fetchData = async () => {
       try {
         const result = await request.get("/users/classification");
 
         if (result.data) {
-          setClassification(result.data);
+          setClassification({ data: result.data, isLoading: false });
         }
       } catch (error) {
         if (error instanceof AxiosError) {
           if (error.response?.data.message) {
-            setClassificationMessage(error.response.data.message);
+            setClassification({ errorMessage: error.response.data.message, isLoading: false });
           }
         }
       }
@@ -163,11 +180,13 @@ export default function MainMenu() {
       <h1>Quiz Halloween 2023</h1>
       <Content className="inner-container">
         <TablesDiv className="tables">
-          {classification && classification.length > 0 ? (
-            <table
-              className="table table-striped table-hover main-table"
-              style={{ display: "block", overflowX: "auto" }}
-            >
+          {classification?.isLoading ? (
+            <Placeholder animation="glow" style={{ width: '50%' }}>
+              <Placeholder xs={12} style={{ height: 291 }} />
+            </Placeholder>
+          ) : null}
+          {classification?.data && classification.data.length > 0 ? (
+            <ClassificationTable className="table table-striped table-hover main-table">
               <thead className="table-dark">
                 <tr className="table-headers">
                   <Position scope="col">#</Position>
@@ -180,7 +199,7 @@ export default function MainMenu() {
                 </tr>
               </thead>
               <tbody className="table-dark">
-                {classification.map(
+                {classification.data.map(
                   ({ id, position, name, games, points, subPoints }) => (
                     <tr key={id}>
                       <Position>{position}</Position>
@@ -194,11 +213,17 @@ export default function MainMenu() {
                   )
                 )}
               </tbody>
-            </table>
-          ) : (
-            <div style={{ color: "red" }}>{classificationMessage}</div>
-          )}
-          {todayGames && todayGames.length > 0 ? (
+            </ClassificationTable>
+          ) : null}
+          {classification?.errorMessage ? (
+            <div style={{ color: "red" }}>{classification?.errorMessage}</div>
+          ) : null}
+          {todayGames?.isLoading ? (
+            <Placeholder animation="glow" style={{ width: '50%' }}>
+              <Placeholder xs={12} style={{ height: 191 }} />
+            </Placeholder>
+          ) : null}
+          {todayGames?.data && todayGames.data.length > 0 ? (
             <TodayTable>
               <TodayGamesHead>
                 <tr>
@@ -208,7 +233,7 @@ export default function MainMenu() {
                 </tr>
               </TodayGamesHead>
               <tbody className="table-group-divider">
-                {todayGames.map(({ players }) => (
+                {todayGames.data.map(({ players }) => (
                   <GameTableRow>
                     <TodayTablePlayers>
                       {players[0].name}{" "}
@@ -227,9 +252,10 @@ export default function MainMenu() {
                 ))}
               </tbody>
             </TodayTable>
-          ) : (
-            <div style={{ color: "red" }}>{todayGameMessage}</div>
-          )}
+          ) : null}
+          {todayGames?.errorMessage ? (
+            <div style={{ color: "red" }}>{todayGames?.errorMessage}</div>
+          ) : null}
         </TablesDiv>
 
         <PlayButton
