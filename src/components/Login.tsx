@@ -13,7 +13,6 @@ const LoginForm = styled.div`
 `
 
 const ConfirmButton = styled.button`
-    width: 50%;
     height: 7%;
 `
 
@@ -21,9 +20,12 @@ export default function Login() {
     const request = useRequest();
     const appContext = useAppContext();
     const [message, setMessage] = useState<string>();
+    const [isLoading, setIsLoading] = useState(false);
     
     const submitForm = async () => {
-        const loginValue = document.getElementById("inputEmail") as HTMLInputElement;
+        setIsLoading(true);
+        
+        const loginValue = document.getElementById("inputLogin") as HTMLInputElement;
         const passwordValue = document.getElementById("inputPassword") as HTMLInputElement;
 
         try {
@@ -41,6 +43,8 @@ export default function Login() {
                   setMessage(error.response.data.message);
                 }
               }
+        } finally {
+            setIsLoading(false);
         }
     }
     
@@ -48,20 +52,22 @@ export default function Login() {
         <LoginForm>
             <span style={{ color: 'red' }}>{message}</span>
             <div className="mb-3 row">
-                <label htmlFor="inputemail" className="col-sm-2 col-form-label">Email</label>
+                <label htmlFor="inputLogin" className="col-sm-2 col-form-label">Login</label>
                     <div className="col-sm-10">
-                <input type="email" className="form-control" id="inputEmail" name="inputEmail"></input>
+                <input className="form-control" id="inputLogin" name="inputLogin" autoFocus />
                 </div>
             </div>
 
             <div className="mb-3 row">
                 <label htmlFor="inputPassword" className="col-sm-2 col-form-label">Hasło</label>
                     <div className="col-sm-10">
-                <input type="password" className="form-control" id="inputPassword" name="inputPassword"></input>
+                <input type="password" className="form-control" id="inputPassword" name="inputPassword" />
                 </div>
             </div>
 
-            <ConfirmButton type="submit" className="btn btn-warning" onClick={ submitForm }>Dali</ConfirmButton>
+            <ConfirmButton type="submit" className="btn btn-warning" onClick={submitForm} disabled={isLoading}>
+                {!isLoading ? 'Dali' : 'Logowanie...'}
+            </ConfirmButton>
         </LoginForm>
     )
 }
