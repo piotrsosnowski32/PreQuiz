@@ -31,11 +31,12 @@ function CategoryChoice() {
 	return (
 		<MainFrame>
 			<Paragraph>
-				Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-				labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-				laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-				voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-				cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+				<h1>Zasadowa przypominajka</h1>
+				Dzienny Quiz składa się z 5 pytań. Na każde pytanie będziecie mieć 10 sekund.
+				Do wyboru zawsze są 4 odpowiedzi, tylko jedna jest prawidłowa.
+				Za każdą dobrą odpowiedź dostajecie 20pkt, za złą - -10pkt, można nie udzielać odpowiedzi,
+				wtedy nie otrzymacie ani nie stracicie punktów.
+				<h1>Miłej zabawy!</h1>
 			</Paragraph>
 
 			<PlayButton className='button-play btn btn-warning' onClick={() => navigate('/game')}>
