@@ -69,10 +69,10 @@ const TablesDiv = styled.div`
 
 const ClassificationTable = styled.table`
   width: 100%;
+  display: block;
+  overflow-x: auto;
   
   @media only screen and ${devices.md} {
-    display: block;
-    overflow-x: auto;
     width: 50%;
   }
 `;
