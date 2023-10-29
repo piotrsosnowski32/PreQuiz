@@ -160,7 +160,7 @@ export default function MainMenu() {
 
   return (
     <div className="Container">
-      <h1>Siemaneczko!</h1>
+      <h1>Quiz Halloween 2023</h1>
       <Content className="inner-container">
         <TablesDiv className="tables">
           {classification && classification.length > 0 ? (
