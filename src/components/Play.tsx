@@ -6,9 +6,12 @@ import { devices } from './constants';
 const MainFrame = styled.div`
 	display: flex;
 	flex-direction: column;
-	width: 50%;
 	align-items: center;
 	justify-content: center;
+
+	@media only screen and ${devices.md} {
+		width: 50%;
+	} 
 `;
 
 const Paragraph = styled.p`
@@ -16,13 +19,10 @@ const Paragraph = styled.p`
 `;
 
 const PlayButton = styled.button`
-	width: 100%;
-	height: 60px;
-	margin-top: 50px;
-	@media only screen and ${devices.md} {
-		width: 20%;
-		height: 50px;
-	}
+	width: 90%;
+	height: 50px;
+	position: fixed;
+	bottom: 16px;
 `;
 
 function CategoryChoice() {
@@ -36,11 +36,11 @@ function CategoryChoice() {
 				Do wyboru zawsze są 4 odpowiedzi, tylko jedna jest prawidłowa.
 				Za każdą dobrą odpowiedź dostajecie 20pkt, za złą - -10pkt, można nie udzielać odpowiedzi,
 				wtedy nie otrzymacie ani nie stracicie punktów.
-				<h1>Miłej zabawy!</h1>
+				<p style={{ textAlign: 'right', marginTop: 32, fontSize: 24 }}>Miłej zabawy!</p>
 			</Paragraph>
 
 			<PlayButton className='button-play btn btn-warning' onClick={() => navigate('/game')}>
-				ZAGRAJ
+				Zagraj
 			</PlayButton>
 		</MainFrame>
 	);

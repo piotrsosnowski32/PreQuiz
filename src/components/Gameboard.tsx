@@ -48,15 +48,17 @@ const AnswersDiv = styled.div`
 	width: 100%;
 `;
 
-const AnswerListElement = styled.li`
+const AnswerListElement = styled.li<{ disabled: boolean }>`
 	background-color: #ffc107;
 	border: none;
 	margin-top: 15px;
 	height: 60px;
+	opacity: ${({ disabled }) => disabled ? '0.5' : '1'};
 `;
 
 function Gameboard() {
 	const [game, setGame] = useState<{ data?: GameInterface[]; errorMessage?: string }>();
+	const [isSaving, setIsSaving] = useState(false);
 	const [activeQuestion, setActiveQuestion] = useState(0);
 	const [isFinished, setFinished] = useState(false);
 
@@ -100,22 +102,25 @@ function Gameboard() {
 	const gameData = game?.data;
 
 	if (gameError) {
-		return <span style={{ color: 'red' }}>{game.errorMessage}</span>;
+		return <span style={{ color: 'red', textAlign: 'center', display: 'flex', alignItems: 'center' }}>{game.errorMessage}</span>;
 	}
 
 	if (!gameData?.length) {
-		return <span>Trwa pobieranie pytań dla rozgrywki...</span>;
+		return <span style={{ textAlign: 'center', display: 'flex', alignItems: 'center' }}>Trwa pobieranie pytań dla rozgrywki...</span>;
 	}
 
 	const gameQuestion = gameData[activeQuestion];
 
 	const addPoints = async (answer?: string) => {
+		setIsSaving(true);
 		await request.post('/games/current', {
 			answer: {
 				questionId: gameQuestion.id,
 				value: answer ?? '',
 			},
 		});
+
+		setIsSaving(false);
 	};
 
 	const nextQuestion = async () => {
@@ -149,14 +154,19 @@ function Gameboard() {
 				</TimerDiv>
 			</Header>
 
-			<AnswersDiv>
+			<AnswersDiv key={activeQuestion}>
 				<ul className='list-group'>
 					{gameQuestion.answers.map(({ label, value }) => (
 						<AnswerListElement
 							key={label}
 							value={value}
 							className='list-group-item list-group-item-action'
+							disabled={isSaving}
 							onClick={async () => {
+								if (isSaving) {
+									return;
+								}
+								
 								await addPoints(value);
 								nextQuestion();
 							}}
