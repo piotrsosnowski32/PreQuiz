@@ -43,7 +43,7 @@ export default function Finish() {
 		<MainDiv>
 			<Info>Dzięki za dzisiaj!</Info>
 
-			<MemikDiv>TU MEMIK NA DZIEŃ</MemikDiv>
+			<MemikDiv></MemikDiv>
 
 			<ButtonDiv>
 				<EndButton
