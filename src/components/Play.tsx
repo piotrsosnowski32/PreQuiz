@@ -36,6 +36,8 @@ function CategoryChoice() {
 				Do wyboru zawsze są 4 odpowiedzi, tylko jedna jest prawidłowa.
 				Za każdą dobrą odpowiedź dostajecie 20pkt, za złą - -10pkt, można nie udzielać odpowiedzi,
 				wtedy nie otrzymacie ani nie stracicie punktów.
+				Zegar ruszy po kliknięciu w przycisk "Zagraj"
+				<h1>Powodzenia!</h1>
 				<p style={{ textAlign: 'right', marginTop: 32, fontSize: 24 }}>Miłej zabawy!</p>
 			</Paragraph>
 
